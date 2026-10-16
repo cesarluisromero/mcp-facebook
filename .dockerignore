@@ -1,0 +1,8 @@
+**/bin
+**/obj
+.git
+.env*
+secrets
+docs
+*.tar.gz
+**/appsettings.Production.json

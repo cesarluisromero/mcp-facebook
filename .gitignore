@@ -1,0 +1,13 @@
+**/bin/
+**/obj/
+.env
+.env.*
+!.env.example
+secrets/
+*.pfx
+*.key
+TestResults/
+**/__pycache__/
+*.pyc
+mcp-facebook-pilot.tar.gz
+mcp-facebook-publish.tar.gz

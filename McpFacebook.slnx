@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/McpFacebook.Core/McpFacebook.Core.csproj" />
+    <Project Path="src/McpFacebook.Server/McpFacebook.Server.csproj" />
+    <Project Path="src/McpFacebook.Worker/McpFacebook.Worker.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/McpFacebook.Tests/McpFacebook.Tests.csproj" />
+  </Folder>
+</Solution>

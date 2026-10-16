@@ -1,0 +1,55 @@
+sequenceDiagram
+    autonumber
+    actor U as Tú
+    participant W as ChatGPT Work
+    participant M as Servidor MCP
+    participant D as Datos protegidos
+    participant F as API de Meta
+    participant P as Página Facebook
+    Note over U,P: Conexión previa: Work autorizado ante el MCP y cliente vinculado a Meta mediante flujos separados.
+    U->>W: Publica ahora en la página de Cliente A: «Hoy abrimos a las 9».
+    W->>M: list_assets / get_capabilities + token de acceso al MCP
+    M->>D: Validar identidad, cliente, roles y activos asignados
+    D-->>M: Contexto y capacidades autorizadas
+    M-->>W: Página y acciones disponibles; si falta acceso, detener
+    opt Solo si faltan datos o el destino es ambiguo
+    W->>U: Pedir precisión sobre página, contenido o momento
+    U->>W: Precisar los datos de la publicación
+    end
+    W->>M: prepare_post(page_id, contenido exacto)
+    M->>D: Validar y guardar operación, contenido y política aplicable
+    M-->>W: operation_id + vista previa + requisitos de autorización
+    opt Solo si la política exige aprobación adicional
+    W->>U: Mostrar página y contenido exactos para confirmar
+    U->>M: Confirmar en interfaz autenticada vinculada a la operación
+    M->>D: Registrar autorización vinculada a parámetros y caducidad
+    end
+    W->>M: publish_post(operation_id) + token de acceso al MCP
+    M->>D: Revalidar permisos y autorización; reservar y deduplicar
+    D-->>M: Estado de la operación y autorización vigente
+    break Sin autorización vigente o con operación en curso / ya ejecutada
+    M-->>W: Detener: informar rechazo o devolver el estado registrado
+    W-->>U: Comunicar el resultado sin volver a publicar
+    end
+    M->>D: Recuperar credencial de la página asignada
+    D-->>M: Credencial Meta para uso exclusivo dentro del VPS
+    M->>F: Crear publicación con el token de la página autorizada
+    alt Meta publica y se puede comprobar el resultado
+    F->>P: Crear publicación en la página elegida
+    F-->>M: Respuesta con identificador de publicación
+    M->>F: Consultar publicación y verificar estado / enlace
+    F-->>M: Estado confirmado y enlace cuando esté disponible
+    M->>D: Guardar resultado y auditoría sin secretos
+    M-->>W: published + post_id + enlace disponible
+    W-->>U: Confirmar publicación y mostrar el enlace disponible
+    else Meta devuelve un rechazo conocido
+    F-->>M: Error de permisos, contenido u otra restricción
+    M->>D: Registrar fallo conocido
+    M-->>W: failed + motivo y siguiente acción
+    W-->>U: Informar el fallo sin afirmar que se publicó
+    else Timeout, procesamiento pendiente o verificación inconclusa
+    M->>D: Guardar pending / unknown; programar reconciliación
+    M-->>W: Estado pendiente + ID de seguimiento; sin reintento ciego
+    W-->>U: Informar que la publicación aún no está confirmada
+    end
+    Note over U,P: Nunca se entregan tokens de Meta a ChatGPT. Una solicitud autorizada no exige confirmación repetida.

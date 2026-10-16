@@ -1,0 +1,15 @@
+flowchart LR
+    ANALISTA["Analista"]
+    OPERADOR["Operador / aprobador<br/>según política"]
+    META["Meta · sistema externo"]
+    subgraph MCP["MCP en VPS · interfaz ChatGPT Work"]
+        CU_08(["CU-08 · Consultar métricas y resultados"])
+        CU_09(["CU-09 · Crear campaña en pausa"])
+        CU_10(["CU-10 · Cambiar estado o presupuesto"])
+    end
+    ANALISTA --- CU_08
+    OPERADOR --- CU_09
+    OPERADOR --- CU_10
+    CU_08 --- META
+    CU_09 --- META
+    CU_10 --- META

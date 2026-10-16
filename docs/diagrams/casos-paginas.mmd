@@ -1,0 +1,20 @@
+flowchart LR
+    OPERADOR["Tú / operador"]
+    META["Meta · sistema externo"]
+    subgraph MCP["MCP en VPS · interfaz ChatGPT Work"]
+        CU_03(["CU-03 · Publicar texto o imagen"])
+        CU_04(["CU-04 · Programar una publicación"])
+        CU_05(["CU-05 · Consultar, editar o eliminar publicaciones"])
+        CU_06(["CU-06 · Responder o moderar comentarios"])
+        CU_07(["CU-07 · Consultar y responder mensajes"])
+    end
+    OPERADOR --- CU_03
+    OPERADOR --- CU_04
+    OPERADOR --- CU_05
+    OPERADOR --- CU_06
+    OPERADOR --- CU_07
+    CU_03 --- META
+    CU_04 --- META
+    CU_05 --- META
+    CU_06 --- META
+    CU_07 --- META

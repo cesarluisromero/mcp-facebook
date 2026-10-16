@@ -1,0 +1,18 @@
+flowchart LR
+    ADMIN["Administrador"]
+    CLIENTE["Representante<br/>del cliente"]
+    EQUIPO["Tú / equipo<br/>autorizado"]
+    META["Meta · sistema externo"]
+    subgraph MCP["MCP en VPS · interfaz ChatGPT Work"]
+        CU_01(["CU-01 · Conectar cliente y activos"])
+        CU_02(["CU-02 · Elegir cliente y consultar capacidades"])
+        CU_11(["CU-11 · Consultar tareas, auditoría y fallos"])
+        CU_12(["CU-12 · Desconectar cliente y revocar acceso"])
+    end
+    ADMIN --- CU_01
+    ADMIN --- CU_12
+    CLIENTE --- CU_01
+    EQUIPO --- CU_02
+    EQUIPO --- CU_11
+    CU_01 --- META
+    CU_02 --- META

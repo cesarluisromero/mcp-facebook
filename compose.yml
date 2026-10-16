@@ -1,0 +1,56 @@
+services:
+  mcp:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5080:8080"
+    volumes:
+      - ./secrets/appsettings.Production.json:/app/appsettings.Production.json:ro
+      - ./secrets/facebook-page-token:/run/secrets/facebook-page-token:ro
+      - publications:/app/operations
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+    security_opt:
+      - no-new-privileges:true
+  identity-db:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: ${IDENTITY_DB_PASSWORD:?Ejecuta deploy/configure.py}
+    volumes:
+      - identity_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  identity:
+    image: quay.io/keycloak/keycloak:26.8.0
+    command: ["start", "--import-realm"]
+    restart: unless-stopped
+    depends_on:
+      identity-db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8180:8080"
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://identity-db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${IDENTITY_DB_PASSWORD:?Ejecuta deploy/configure.py}
+      KC_BOOTSTRAP_ADMIN_USERNAME: bootstrap-admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${IDENTITY_ADMIN_PASSWORD:?Ejecuta deploy/configure.py}
+      KC_HTTP_ENABLED: "true"
+      KC_HTTP_RELATIVE_PATH: /auth
+      KC_HOSTNAME: https://mifacebook-mcp.duckdns.org/auth
+      KC_PROXY_HEADERS: xforwarded
+      JAVA_OPTS_APPEND: "-Xms128m -Xmx512m"
+    volumes:
+      - ./secrets/facebook-realm.json:/opt/keycloak/data/import/facebook-realm.json:ro
+    security_opt:
+      - no-new-privileges:true
+volumes:
+  identity_db:
+  publications:
